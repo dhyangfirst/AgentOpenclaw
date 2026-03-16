@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent 像素小镇</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Microsoft YaHei', sans-serif;
+            color: #fff;
+        }
+        h1 {
+            margin: 30px 0;
+            text-shadow: 0 0 20px #00d4ff;
+        }
+        #game {
+            display: grid;
+            grid-template-columns: repeat(20, 25px);
+            gap: 1px;
+            background: #0f0f23;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0,212,255,0.3);
+        }
+        .cell {
+            width: 25px;
+            height: 25px;
+            background: #1a1a2e;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .cell:hover { transform: scale(1.1); }
+        .cell.agent { background: #00d4ff; box-shadow: 0 0 10px #00d4ff; }
+        .cell.house { background: #ff6b6b; }
+        .cell.shop { background: #feca57; }
+        .cell.park { background: #1dd1a1; }
+        .cell.road { background: #576574; }
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-agent { background: #00d4ff; color: #000; }
+        .btn-house { background: #ff6b6b; color: #fff; }
+        .btn-shop { background: #feca57; color: #000; }
+        .btn-park { background: #1dd1a1; color: #000; }
+        .btn-road { background: #576574; color: #fff; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            max-width: 520px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 Agent 像素小镇</h1>
+    <div id="game"></div>
+    <div class="controls">
+        <button class="btn-agent" onclick="setTool('agent')">🤖 Agent</button>
+        <button class="btn-house" onclick="setTool('house')">🏠 住宅</button>
+        <button class="btn-shop" onclick="setTool('shop')">🏪 商店</button>
+        <button class="btn-park" onclick="setTool('park')">🌳 公园</button>
+        <button class="btn-road" onclick="setTool('road')">🛣️ 道路</button>
+        <button onclick="clearMap()">🗑️ 清空</button>
+        <button onclick="randomMap()">🎲 随机生成</button>
+    </div>
+    <div class="info">
+        <p><strong>当前工具：</strong><span id="currentTool">Agent</span></p>
+        <p>💡 点击格子放置元素，创造属于你的 Agent 小镇！</p>
+    </div>
+
+    <script>
+        const ROWS = 15, COLS = 20;
+        let currentTool = 'agent';
+        let map = [];
+
+        function init() {
+            const game = document.getElementById('game');
+            game.style.gridTemplateColumns = `repeat(${COLS}, 25px)`;
+            
+            for (let i = 0; i < ROWS * COLS; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.index = i;
+                cell.onclick = () => placeCell(i);
+                game.appendChild(cell);
+                map.push('');
+            }
+        }
+
+        function setTool(tool) {
+            currentTool = tool;
+            document.getElementById('currentTool').textContent = 
+                tool === 'agent' ? '🤖 Agent' :
+                tool === 'house' ? '🏠 住宅' :
+                tool === 'shop' ? '🏪 商店' :
+                tool === 'park' ? '🌳 公园' : '🛣️ 道路';
+        }
+
+        function placeCell(index) {
+            const cell = document.querySelector(`[data-index="${index}"]`);
+            cell.className = `cell ${currentTool}`;
+            map[index] = currentTool;
+        }
+
+        function clearMap() {
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.className = 'cell';
+            });
+            map.fill('');
+        }
+
+        function randomMap() {
+            clearMap();
+            const tools = ['agent', 'house', 'shop', 'park', 'road'];
+            for (let i = 0; i < ROWS * COLS; i++) {
+                if (Math.random() > 0.7) {
+                    const tool = tools[Math.floor(Math.random() * tools.length)];
+                    const cell = document.querySelector(`[data-index="${i}"]`);
+                    cell.className = `cell ${tool}`;
+                    map[i] = tool;
+                }
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
